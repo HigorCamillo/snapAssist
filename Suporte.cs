@@ -9,6 +9,8 @@ namespace snapAssist
     {
         private bool isDragging = false;
         private Point lastCursor;
+        private Point initialDragPoint; // Ponto inicial do arrasto
+        private bool mouseMoved = false; // Flag para detectar movimento do mouse
 
         public Suporte()
         {
@@ -53,24 +55,31 @@ namespace snapAssist
 
         private void PictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            LogMouseAction($"Clique: {e.Location}");
+            if (!mouseMoved) // Só registra clique se o mouse não se moveu
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    LogMouseAction($"Clique: {{X={e.X}, Y={e.Y}}}");
+                }
+                else if (e.Button == MouseButtons.Right)
+                {
+                    LogMouseAction($"Clique com Botão Direito: {{X={e.X}, Y={e.Y}}}");
+                }
+            }
         }
 
         private void PictureBox1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            LogMouseAction($"Duplo Clique: {e.Location}");
+            LogMouseAction($"Duplo Clique: {{X={e.X}, Y={e.Y}}}");
         }
 
         private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
-            {
-                LogMouseAction($"Clique com Botão Direito: {e.Location}");
-            }
-            else
+            if (e.Button == MouseButtons.Left)
             {
                 isDragging = true;
-                lastCursor = e.Location;
+                mouseMoved = false; // Reseta o flag de movimento
+                initialDragPoint = e.Location; // Armazena o ponto inicial do arrasto
             }
         }
 
@@ -78,21 +87,33 @@ namespace snapAssist
         {
             if (isDragging)
             {
-                LogMouseAction($"Arrastando: {e.Location}");
+                if (e.Location != initialDragPoint) // Verifica se o mouse realmente se moveu
+                {
+                    mouseMoved = true;
+                    lastCursor = e.Location; // Atualiza a posição do cursor durante o arrasto
+                }
             }
         }
 
         private void PictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-            isDragging = false;
-            LogMouseAction($"Soltou o botão do mouse: {lastCursor}");
+            if (isDragging && mouseMoved) // Loga apenas se houve movimento
+            {
+                isDragging = false;
+                string action = $"Arrastando: {{X={initialDragPoint.X}, Y={initialDragPoint.Y}}} até {{X={lastCursor.X}, Y={lastCursor.Y}}}";
+                LogMouseAction(action);
+            }
+            else
+            {
+                isDragging = false; // Apenas cancela o arrasto se não houve movimento
+            }
         }
 
         private void LogMouseAction(string action)
         {
             // Formata a mensagem de ação
             string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {action}";
-            UpdateLog(logMessage); // Atualiza o log diretamente
+            UpdateLog(logMessage);
         }
 
         private void UpdateLog(string logMessage)
@@ -108,12 +129,11 @@ namespace snapAssist
                     Directory.CreateDirectory(directoryPath);
                 }
 
-                // Adiciona o log diretamente no arquivo sem armazenar em uma lista
+                // Adiciona o log diretamente no arquivo
                 using (StreamWriter sw = new StreamWriter(logPath, true))
                 {
                     sw.WriteLine(logMessage);
                 }
-                
             }
             catch (Exception ex)
             {
