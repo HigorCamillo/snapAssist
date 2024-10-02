@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Timer = System.Windows.Forms.Timer;
 
 namespace snapAssist
 {
@@ -12,10 +13,10 @@ namespace snapAssist
         private Point initialDragPoint; // Ponto inicial do arrasto
         private bool mouseMoved = false; // Flag para detectar movimento do mouse
 
+        private Timer timer;
         public Suporte()
         {
             InitializeComponent();
-            LoadImage();
             this.Resize += Form1_Resize;
 
             // Adiciona os manipuladores de eventos do mouse ao PictureBox
@@ -24,18 +25,37 @@ namespace snapAssist
             this.pictureBox1.MouseDown += PictureBox1_MouseDown;
             this.pictureBox1.MouseMove += PictureBox1_MouseMove;
             this.pictureBox1.MouseUp += PictureBox1_MouseUp;
-        }
 
-        private void LoadImage()
+            timer = new Timer();
+            timer.Interval = 100; // 5000 milliseconds = 5 seconds
+            timer.Tick += new EventHandler(LoadImage);
+            timer.Start();
+        }
+        Image ImageShow = null;
+        private void LoadImage(object sender, EventArgs e)
         {
             try
             {
-                string imagePath = @"C:\Users\higor\Desktop\screenshot.png";
-                if (File.Exists(imagePath))
+                string imagePath = @"\\desktop-q09qmnv\prints\screenshot.png";
+                string suportePath = @"\\desktop-q09qmnv\prints\suporte.png";
+                try
                 {
-                    pictureBox1.Image = Image.FromFile(imagePath);
+                    pictureBox1.Image = null;
+
+                    ImageShow?.Dispose();
+                    ImageShow = null;
+                }
+                catch { }
+
+                File.Copy(imagePath, suportePath, true);
+
+                if (File.Exists(suportePath))
+                {
+                    ImageShow = Image.FromFile(suportePath);
+                    pictureBox1.Image = ImageShow;
                     pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
                     pictureBox1.Dock = DockStyle.Fill;
+
                 }
                 else
                 {
@@ -44,7 +64,7 @@ namespace snapAssist
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao carregar a imagem: " + ex.Message);
+                //MessageBox.Show("Erro ao carregar a imagem: " + ex.Message);
             }
         }
 
@@ -137,8 +157,17 @@ namespace snapAssist
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao atualizar o arquivo de log: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show("Erro ao atualizar o arquivo de log: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void Suporte_Load(object sender, EventArgs e)
+        {
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

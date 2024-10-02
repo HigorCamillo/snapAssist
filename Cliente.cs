@@ -18,7 +18,7 @@ namespace snapAssist
         private void InitializeTimer()
         {
             timer = new Timer();
-            timer.Interval = 5000; // 5000 milliseconds = 5 seconds
+            timer.Interval = 500; // 5000 milliseconds = 5 seconds
             timer.Tick += new EventHandler(Timer_Tick);
             timer.Start();
         }
@@ -68,6 +68,16 @@ namespace snapAssist
 
             // Desenha o cursor na imagem capturada
             cursor.Draw(g, new Rectangle(cursorX, cursorY, cursor.Size.Width, cursor.Size.Height));
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Cliente_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
