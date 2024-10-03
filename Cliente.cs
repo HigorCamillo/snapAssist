@@ -69,15 +69,5 @@ namespace snapAssist
             // Desenha o cursor na imagem capturada
             cursor.Draw(g, new Rectangle(cursorX, cursorY, cursor.Size.Width, cursor.Size.Height));
         }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Cliente_Load(object sender, EventArgs e)
-        {
-
-        }
     }
 }
