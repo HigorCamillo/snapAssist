@@ -14,9 +14,14 @@ namespace snapAssist
         private bool mouseMoved = false; // Flag para detectar movimento do mouse
 
         private Timer timer;
-        public Suporte()
+        private string ftpIp;
+        private string ftpPassword;
+        public Suporte(string ip, string password)
         {
             InitializeComponent();
+            this.ftpIp = ip;
+            this.ftpPassword = password;
+
             this.Resize += Form1_Resize;
 
             // Adiciona os manipuladores de eventos do mouse ao PictureBox

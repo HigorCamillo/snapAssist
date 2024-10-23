@@ -32,7 +32,7 @@ namespace snapAssist
         {
             try
             {
-                // Define the bounds da tela
+                // Define os limites da tela
                 Rectangle bounds = Screen.GetBounds(Point.Empty);
                 using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
                 {
@@ -48,16 +48,26 @@ namespace snapAssist
                         DrawCursor(g, mousePosition);
                     }
 
-                    // Salva a imagem no mesmo arquivo
-                    string fileName = @"C:\Users\higor\Desktop\screenshot.png";
+                    // Defina o diretório FTP para salvar a captura
+                    string ftpDirectory = @"C:\FTP";
+                                                      
+                    if (!Directory.Exists(ftpDirectory))
+                    {
+                        Directory.CreateDirectory(ftpDirectory);
+                    }
+
+                    string fileName = Path.Combine(ftpDirectory, "screenshot.png");
+
+                    // Salva a imagem no diretório FTP
                     bitmap.Save(fileName);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error capturing screen: {ex.Message}");
+                MessageBox.Show($"Erro ao capturar a tela: {ex.Message}");
             }
         }
+
 
         private void DrawCursor(Graphics g, Point mousePosition)
         {
