@@ -49,7 +49,6 @@ namespace snapAssist
 
                     // Criando o usuário 'ftpUser' e atribuindo uma senha
                     string ftpUserName = "ftpUser";
-                    string randomPassword = GenerateRandomPassword(); // Substitua com sua lógica de senha
                     ExecuteCommand($"net user {ftpUserName} {randomPassword} /add");
 
                     // Definindo permissões de leitura e escrita para o diretório FTP
@@ -91,8 +90,8 @@ namespace snapAssist
             {
                 res[i] = valid[random.Next(valid.Length)];
             }
-
-            return new string(res);
+            string password = new string(res);
+            return new string(password);
         }
 
         // Método para executar comandos no CMD
@@ -140,15 +139,19 @@ namespace snapAssist
             try
             {
                 string localIP = GetLocalIPAddress();
-                // Remover o site FTP
-                ExecuteCommand($"powershell -Command \"Import-Module WebAdministration; Remove-WebSite -Name '{localIP}'\"");
+
+                // Remover o site FTP no IIS
+                ExecuteCommand($"powershell -Command \"Import-Module WebAdministration; if (Get-Website -Name '{localIP}') {{ Remove-Website -Name '{localIP}' }}\"");
+
+                // Remover regras de firewall criadas
+                ExecuteCommand("netsh advfirewall firewall delete rule name=\"FTP\"");
 
                 // Excluir o usuário FTP
                 string ftpUserName = "ftpUser"; // Nome do usuário FTP
                 ExecuteCommand($"net user {ftpUserName} /delete");
 
                 // Remover a pasta FTP, se necessário
-                ExecuteCommand("rmdir /S /Q C:\\FTP"); // Tenha cuidado com esse comando!
+                ExecuteCommand("rmdir /S /Q C:\\FTP"); // Tenha cuidado com esse comando, ele exclui todo o conteúdo!
 
             }
             catch (Exception ex)
@@ -156,6 +159,7 @@ namespace snapAssist
                 MessageBox.Show($"Erro ao remover a configuração do FTP: {ex.Message}");
             }
         }
+
 
         // Seus outros métodos (para abrir formulários, etc.)
         private void button1_Click(object sender, EventArgs e)
