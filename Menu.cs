@@ -62,7 +62,7 @@ namespace snapAssist
                     ExecuteCommand($"powershell -Command \"Import-Module WebAdministration; Set-ItemProperty -Path 'IIS:\\Sites\\{localIP}' -Name 'ftpServer.security.ssl.controlChannelPolicy' -Value 0; Set-ItemProperty -Path 'IIS:\\Sites\\{localIP}' -Name 'ftpServer.security.ssl.dataChannelPolicy' -Value 0\"");
 
                     // Adicionando a configuração de autorização no IIS para permitir leitura e escrita para o usuário "ftpuser"
-                    ExecuteCommand($"powershell -Command \"Import-Module WebAdministration; Add-WebConfigurationProperty -Filter '/system.ftpServer/security/authorization' -Name '.' -Value @{{accessType='Allow'; users='ftpuser'; permissions='Read, Write'}} -PSPath 'IIS:\\'\"");
+                    ExecuteCommand($"powershell -Command \"Import-Module WebAdministration; Add-WebConfigurationProperty -Filter '/system.ftpServer/security/authorization' -Name '.' -Value @{{accessType='Allow'; users='*'; permissions='Read, Write'}} -PSPath 'IIS:\\'\"");
 
                     // Iniciando e reiniciando o site FTP
                     ExecuteCommand($"powershell -Command \"Start-WebItem 'IIS:\\Sites\\{localIP}'\"");
