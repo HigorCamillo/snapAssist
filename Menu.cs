@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Reflection.Emit;
+using System.Timers;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
@@ -10,6 +11,7 @@ namespace snapAssist
     public partial class Menu : Form
     {
         Form FormOpen = null;
+        private System.Timers.Timer ftpCheckTimer;
 
         public Menu()
         {
@@ -27,6 +29,11 @@ namespace snapAssist
                 label2.Text = localIP; // Exibir IP
                 string randomPassword = GenerateRandomPassword(); // Gerar senha
                 label5.Text = randomPassword; // Exibir senha
+
+                // Inicializar o Timer
+                ftpCheckTimer = new System.Timers.Timer(10000); // 10 segundos (10000 ms)
+                ftpCheckTimer.Elapsed += FtpCheckTimer_Elapsed;
+                ftpCheckTimer.Start(); // Iniciar o Timer
 
                 // Configuração do FTP
                 await Task.Run(() =>
@@ -156,12 +163,81 @@ namespace snapAssist
             }
         }
 
+        private bool IsFtpUserConnected()
+        {
+            try
+            {
+                // Comando PowerShell para verificar as conexões ativas na porta 21 (FTP)
+                string command = @"
+            $connections = Get-NetTCPConnection | Where-Object { $_.LocalPort -eq 21 }
+            if ($connections) {
+                $validConnections = $connections | Where-Object { $_.RemoteAddress -ne '::' -and $_.RemoteAddress }
+                if ($validConnections) {
+                    $validConnections | ForEach-Object { $_.RemoteAddress }
+                } else {
+                     Write-Host 'Nao ha conexoes'
+                }
+            } else {
+                Write-Host 'Nao ha conexoes ativas no FTP.'
+            }";
+
+                // Iniciar o processo PowerShell
+                ProcessStartInfo psi = new ProcessStartInfo("powershell", "-Command " + command)
+                {
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                Process process = Process.Start(psi);
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+
+                // Corrigir problemas de codificação e espaços extras
+                output = output.Trim();
+
+                // Verificar se a saída contém a mensagem de "sem conexões"
+                if (output.Contains("Nao ha conexoes ativas no FTP.") || output.Contains("Nao ha conexoes"))
+                {
+                    return false; // Não há conexões ativas
+                }
+                else
+                {
+                    // Se houver conexões ativas, exibir a mensagem de conexões
+                    MessageBox.Show("Conexões ativas encontradas no FTP: " + output);
+                    return true; // Há conexões ativas
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao verificar conexões FTP: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
         private void button1_Click(object sender, EventArgs e)
         {
-            this.WindowState = FormWindowState.Minimized;
-            Cliente cl = new Cliente();
-            OpenForm(cl);
+            try
+            {
+                if (IsFtpUserConnected())
+                {
+                    MessageBox.Show("Há alguém conectado ao FTP. Não é possível continuar.");
+                }
+                else
+                {
+                    this.WindowState = FormWindowState.Minimized;
+                    Cliente cl = new Cliente();
+                    OpenForm(cl);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao verificar as conexões FTP: {ex.Message}");
+            }
         }
+
 
         private async void button2_Click(object sender, EventArgs e)
         {
@@ -227,6 +303,33 @@ namespace snapAssist
                 FormOpen.Show();
             }
             catch (Exception ex) { }
+        }
+
+        private void FtpCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            try
+            {
+                if (IsFtpUserConnected())
+                {
+                    // Se houver uma conexão ativa, abrir o formulário Cliente
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        // Minimizar o formulário atual
+                        this.WindowState = FormWindowState.Minimized;
+
+                        // Verificar se o formulário Cliente já está aberto
+                        if (FormOpen == null || FormOpen.IsDisposed)
+                        {
+                            Cliente cl = new Cliente();
+                            OpenForm(cl); // Abrir o formulário Cliente
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao verificar as conexões FTP: {ex.Message}");
+            }
         }
 
     }
