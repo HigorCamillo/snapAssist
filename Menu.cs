@@ -4,6 +4,7 @@ using System.Net;
 using System.Reflection.Emit;
 using System.Timers;
 using System.Windows.Forms;
+using static System.Net.WebRequestMethods;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace snapAssist
@@ -24,6 +25,8 @@ namespace snapAssist
         {
             try
             {
+                RemoveFtpConfiguration();
+
                 // Obter o endereço IP local
                 string localIP = GetLocalIPAddress();
                 label2.Text = localIP; // Exibir IP
@@ -135,6 +138,8 @@ namespace snapAssist
         private void Menu_FormClosing(object sender, FormClosingEventArgs e)
         {
             RemoveFtpConfiguration();
+
+            Application.Exit();
         }
 
         private void RemoveFtpConfiguration()
@@ -215,30 +220,6 @@ namespace snapAssist
             }
         }
 
-
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (IsFtpUserConnected())
-                {
-                    MessageBox.Show("Há alguém conectado ao FTP. Não é possível continuar.");
-                }
-                else
-                {
-                    this.WindowState = FormWindowState.Minimized;
-                    Cliente cl = new Cliente();
-                    OpenForm(cl);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao verificar as conexões FTP: {ex.Message}");
-            }
-        }
-
-
         private async void button2_Click(object sender, EventArgs e)
         {
             string ftpIp = textBox1.Text;  // IP do servidor FTP
@@ -305,12 +286,27 @@ namespace snapAssist
             catch (Exception ex) { }
         }
 
+        private string GetFtpUserConnectedIp()
+        {
+            // Exemplo: Usando o IP da conexão de rede local
+            foreach (var ip in System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName()))
+            {
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();  // Retorna o IP da máquina local
+                }
+            }
+            return null;  // Caso não encontre
+        }
+
         private void FtpCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             try
             {
                 if (IsFtpUserConnected())
                 {
+                    string ftpIp = GetFtpUserConnectedIp();
+
                     // Se houver uma conexão ativa, abrir o formulário Cliente
                     this.Invoke((MethodInvoker)delegate
                     {
@@ -320,7 +316,7 @@ namespace snapAssist
                         // Verificar se o formulário Cliente já está aberto
                         if (FormOpen == null || FormOpen.IsDisposed)
                         {
-                            Cliente cl = new Cliente();
+                            Cliente cl = new Cliente(ftpIp);
                             OpenForm(cl); // Abrir o formulário Cliente
                         }
                     });

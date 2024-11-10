@@ -13,10 +13,12 @@ namespace snapAssist
     {
         private Timer timer;
 
-        public Cliente()
+        public Cliente(string ip)
         {
             InitializeComponent();
             InitializeTimer();
+            label1.Text = $"SnapAssist sendo acessado pelo IP: {ip}";
+            label1.TextAlign = ContentAlignment.MiddleCenter;
         }
 
         private void InitializeTimer()
@@ -233,6 +235,7 @@ namespace snapAssist
 
 
         }
+
         // Importando a função mouse_event da User32.dll
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         public static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
