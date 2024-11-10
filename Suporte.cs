@@ -152,28 +152,41 @@ namespace snapAssist
 
         private void UpdateLog(string logMessage)
         {
-            string logPath = @"C:\Users\higor\Desktop\mouse_log.txt"; // Caminho do arquivo de log
-
             try
             {
-                // Certifica-se de que o diretório do arquivo existe
-                string directoryPath = Path.GetDirectoryName(logPath);
-                if (!Directory.Exists(directoryPath))
+                // Caminho do arquivo de log no servidor FTP
+                string ftpLogPath = $"ftp://{ftpIp}/mouse_log.txt";
+
+                // Criar uma requisição FTP para acessar o arquivo de log no servidor
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpLogPath);
+                request.Method = WebRequestMethods.Ftp.AppendFile; // Usar "AppendFile" para adicionar dados ao arquivo existente
+
+                // Definir as credenciais de login FTP
+                request.Credentials = new NetworkCredential("ftpUser", ftpPassword);
+
+                // Enviar os dados para o servidor FTP
+                using (Stream requestStream = request.GetRequestStream())
                 {
-                    Directory.CreateDirectory(directoryPath);
+                    using (StreamWriter writer = new StreamWriter(requestStream))
+                    {
+                        // Escrever a nova linha de log
+                        writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {logMessage}");
+                    }
                 }
 
-                // Adiciona o log diretamente no arquivo
-                using (StreamWriter sw = new StreamWriter(logPath, true))
+                // Realizar a requisição e obter a resposta do servidor FTP
+                using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
                 {
-                    sw.WriteLine(logMessage);
+                   
                 }
             }
             catch (Exception ex)
             {
-                //MessageBox.Show("Erro ao atualizar o arquivo de log: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Caso haja erro durante a operação, exibe um erro
+                MessageBox.Show($"Erro ao atualizar o arquivo de log no FTP: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void Suporte_Load(object sender, EventArgs e)
         {
