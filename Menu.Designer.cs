@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Menu));
             button2 = new Button();
             textBox1 = new TextBox();
             label1 = new Label();
@@ -47,7 +48,7 @@
             button2.Name = "button2";
             button2.Size = new Size(86, 31);
             button2.TabIndex = 1;
-            button2.Text = "Suporte";
+            button2.Text = "Acessar";
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
@@ -56,7 +57,7 @@
             textBox1.Location = new Point(240, 61);
             textBox1.Margin = new Padding(3, 4, 3, 4);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(183, 27);
+            textBox1.Size = new Size(182, 27);
             textBox1.TabIndex = 2;
             // 
             // label1
@@ -124,7 +125,7 @@
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(348, 240);
+            label7.Location = new Point(12, 240);
             label7.Name = "label7";
             label7.Size = new Size(99, 20);
             label7.TabIndex = 10;
@@ -146,8 +147,10 @@
             Controls.Add(label1);
             Controls.Add(textBox1);
             Controls.Add(button2);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(3, 4, 3, 4);
             Name = "Menu";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "SnapAssist";
             ResumeLayout(false);
             PerformLayout();

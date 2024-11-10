@@ -80,12 +80,12 @@ namespace snapAssist
                 });
 
                 label7.Text = "Pronto para conexão!";
-                label7.Location = new Point(this.ClientSize.Width - label7.Width - 10, this.ClientSize.Height - label7.Height - 10);
+                label7.Location = new Point(10, this.ClientSize.Height - label7.Height - 10);
+
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao configurar o FTP: {ex.Message}");
             }
         }
 
@@ -209,13 +209,11 @@ namespace snapAssist
                 else
                 {
                     // Se houver conexões ativas, exibir a mensagem de conexões
-                    MessageBox.Show("Conexões ativas encontradas no FTP: " + output);
                     return true; // Há conexões ativas
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao verificar conexões FTP: {ex.Message}");
                 return false;
             }
         }
