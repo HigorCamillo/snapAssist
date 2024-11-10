@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
 
@@ -37,41 +38,49 @@ namespace snapAssist
             timer.Start();
         }
         Image ImageShow = null;
+        private bool isImageLoading = false;  // Flag para controlar se a imagem está sendo carregada
+
         private void LoadImage(object sender, EventArgs e)
         {
+            if (isImageLoading)
+            {
+                return; // Impede novas tentativas de carregar enquanto já há uma em andamento
+            }
+
             try
             {
-                string imagePath = @"\\desktop-q09qmnv\prints\screenshot.png";
-                string suportePath = @"\\desktop-q09qmnv\prints\suporte.png";
-                try
+                isImageLoading = true;  // Marca que estamos carregando uma imagem
+
+                // Caminho no servidor FTP
+                string ftpImagePath = $"ftp://{ftpIp}/screenshot.png";
+
+                // Baixar a imagem do servidor FTP diretamente em um Stream
+                using (WebClient client = new WebClient())
                 {
-                    pictureBox1.Image = null;
+                    client.Credentials = new NetworkCredential("ftpUser", ftpPassword);
+                    using (Stream stream = client.OpenRead(ftpImagePath))
+                    {
+                        // Limpar a imagem existente no PictureBox
+                        pictureBox1.Image?.Dispose(); // Liberar os recursos da imagem anterior
+                        pictureBox1.Image = null; // Limpar o PictureBox
 
-                    ImageShow?.Dispose();
-                    ImageShow = null;
-                }
-                catch { }
-
-                File.Copy(imagePath, suportePath, true);
-
-                if (File.Exists(suportePath))
-                {
-                    ImageShow = Image.FromFile(suportePath);
-                    pictureBox1.Image = ImageShow;
-                    pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-                    pictureBox1.Dock = DockStyle.Fill;
-
-                }
-                else
-                {
-                    MessageBox.Show("Imagem não encontrada!");
+                        // Carregar a imagem diretamente do fluxo
+                        ImageShow = Image.FromStream(stream);
+                        pictureBox1.Image = ImageShow; // Atribuir a imagem ao PictureBox
+                        pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage; // Ajustar a imagem
+                        pictureBox1.Dock = DockStyle.Fill; // Ajustar o PictureBox
+                    }
                 }
             }
             catch (Exception ex)
             {
-                //MessageBox.Show("Erro ao carregar a imagem: " + ex.Message);
+            }
+            finally
+            {
+                isImageLoading = false; // Permite que a próxima atualização aconteça
             }
         }
+
 
         private void Form1_Resize(object sender, EventArgs e)
         {

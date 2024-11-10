@@ -35,19 +35,22 @@
             // pictureBox1
             // 
             pictureBox1.Location = new Point(1, 1);
+            pictureBox1.Margin = new Padding(3, 4, 3, 4);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(797, 447);
+            pictureBox1.Size = new Size(911, 596);
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
             // Suporte
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(914, 600);
             Controls.Add(pictureBox1);
+            Margin = new Padding(3, 4, 3, 4);
             Name = "Suporte";
             Text = "Form1";
+            WindowState = FormWindowState.Maximized;
             Load += Suporte_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
