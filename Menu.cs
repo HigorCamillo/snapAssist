@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
+using System.Reflection.Emit;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
@@ -68,9 +69,7 @@ namespace snapAssist
                     ExecuteCommand($"powershell -Command \"Restart-WebItem 'IIS:\\Sites\\{localIP}'\"");
                 });
 
-
-
-                MessageBox.Show("Configuração do FTP concluída com sucesso!");
+                label7.Text = "Pronto para conexão!";
             }
             catch (Exception ex)
             {
