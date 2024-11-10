@@ -79,8 +79,6 @@ namespace snapAssist
             }
         }
 
-
-        // Método para gerar uma senha aleatória
         private string GenerateRandomPassword(int length = 8)
         {
             const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -95,7 +93,6 @@ namespace snapAssist
             return new string(password);
         }
 
-        // Método para executar comandos no CMD
         private void ExecuteCommand(string command)
         {
             try
@@ -115,7 +112,6 @@ namespace snapAssist
             }
         }
 
-        // Método para obter o IP da máquina
         private string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -129,7 +125,6 @@ namespace snapAssist
             throw new Exception("Nenhum IP local encontrado!");
         }
 
-        // Método para parar o servidor FTP ao fechar o aplicativo
         private void Menu_FormClosing(object sender, FormClosingEventArgs e)
         {
             RemoveFtpConfiguration();
@@ -152,7 +147,7 @@ namespace snapAssist
                 ExecuteCommand($"net user {ftpUserName} /delete");
 
                 // Remover a pasta FTP, se necessário
-                ExecuteCommand("rmdir /S /Q C:\\FTP"); // Tenha cuidado com esse comando, ele exclui todo o conteúdo!
+                ExecuteCommand("rmdir /S /Q C:\\FTP"); 
 
             }
             catch (Exception ex)
@@ -161,8 +156,6 @@ namespace snapAssist
             }
         }
 
-
-        // Seus outros métodos (para abrir formulários, etc.)
         private void button1_Click(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
