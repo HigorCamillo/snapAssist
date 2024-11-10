@@ -49,7 +49,7 @@ namespace snapAssist
 
                     // Criando o usuário 'ftpUser' e atribuindo uma senha
                     string ftpUserName = "ftpUser";
-                    string randomPassword = "SenhaAleatoria123"; // Substitua com sua lógica de senha
+                    string randomPassword = GenerateRandomPassword(); // Substitua com sua lógica de senha
                     ExecuteCommand($"net user {ftpUserName} {randomPassword} /add");
 
                     // Definindo permissões de leitura e escrita para o diretório FTP
