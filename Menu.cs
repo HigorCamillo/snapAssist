@@ -164,6 +164,7 @@ namespace snapAssist
         // Seus outros métodos (para abrir formulários, etc.)
         private void button1_Click(object sender, EventArgs e)
         {
+            this.WindowState = FormWindowState.Minimized;
             Cliente cl = new Cliente();
             OpenForm(cl);
         }

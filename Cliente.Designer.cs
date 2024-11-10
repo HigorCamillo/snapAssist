@@ -34,21 +34,23 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(177, 8);
+            label1.Location = new Point(202, 11);
             label1.Name = "label1";
-            label1.Size = new Size(158, 15);
+            label1.Size = new Size(197, 20);
             label1.TabIndex = 0;
             label1.Text = "SnapAssist sendo acessado...";
             // 
             // Cliente
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(493, 30);
+            ClientSize = new Size(563, 40);
             Controls.Add(label1);
             FormBorderStyle = FormBorderStyle.None;
+            Margin = new Padding(3, 4, 3, 4);
             Name = "Cliente";
             Text = "Cliente";
+            Load += Cliente_Load;
             ResumeLayout(false);
             PerformLayout();
         }

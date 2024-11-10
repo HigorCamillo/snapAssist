@@ -50,7 +50,7 @@ namespace snapAssist
 
                     // Defina o diretório FTP para salvar a captura
                     string ftpDirectory = @"C:\FTP";
-                                                      
+
                     if (!Directory.Exists(ftpDirectory))
                     {
                         Directory.CreateDirectory(ftpDirectory);
@@ -78,6 +78,21 @@ namespace snapAssist
 
             // Desenha o cursor na imagem capturada
             cursor.Draw(g, new Rectangle(cursorX, cursorY, cursor.Size.Width, cursor.Size.Height));
+        }
+
+        private void Cliente_Load(object sender, EventArgs e)
+        {
+            // Centralizar horizontalmente e posicionar no topo
+            int screenWidth = Screen.PrimaryScreen.Bounds.Width;
+            int screenHeight = Screen.PrimaryScreen.Bounds.Height;
+
+            int formWidth = this.Width;
+            int formHeight = this.Height;
+
+            // Definir a posição do formulário (centrado horizontalmente e no topo da tela)
+            this.Location = new Point((screenWidth - formWidth) / 2, 0);
+
+            
         }
     }
 }
