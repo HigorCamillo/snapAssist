@@ -136,11 +136,12 @@
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(25, 237);
+            label7.Location = new Point(348, 240);
             label7.Name = "label7";
             label7.Size = new Size(99, 20);
             label7.TabIndex = 10;
             label7.Text = "Inicializando..";
+            label7.TextAlign = ContentAlignment.TopRight;
             // 
             // Menu
             // 

@@ -70,6 +70,8 @@ namespace snapAssist
                 });
 
                 label7.Text = "Pronto para conexão!";
+                label7.Location = new Point(this.ClientSize.Width - label7.Width - 10, this.ClientSize.Height - label7.Height - 10);
+
             }
             catch (Exception ex)
             {
