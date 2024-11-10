@@ -118,7 +118,6 @@ namespace snapAssist
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao executar comando: {ex.Message}");
             }
         }
 
@@ -164,7 +163,6 @@ namespace snapAssist
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao remover a configuração do FTP: {ex.Message}");
             }
         }
 
@@ -236,12 +234,11 @@ namespace snapAssist
                 }
                 else
                 {
-                    MessageBox.Show("Falha ao conectar ao FTP. Verifique o IP e a senha.");
+                    MessageBox.Show("Falha ao conectar. Verifique o IP e a senha.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao tentar conectar ao FTP: {ex.Message}");
             }
         }
 
@@ -264,7 +261,6 @@ namespace snapAssist
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao conectar ao FTP: {ex.Message}");
                 return false;
             }
         }
@@ -322,7 +318,6 @@ namespace snapAssist
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao verificar as conexões FTP: {ex.Message}");
             }
         }
 

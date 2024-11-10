@@ -51,7 +51,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(3, 4, 3, 4);
             Name = "Suporte";
-            Text = "Form1";
+            Text = "SnapAssist - Suporte";
             WindowState = FormWindowState.Maximized;
             Load += Suporte_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
