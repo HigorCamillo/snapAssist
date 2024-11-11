@@ -32,6 +32,9 @@ namespace snapAssist
             this.pictureBox1.MouseMove += PictureBox1_MouseMove;
             this.pictureBox1.MouseUp += PictureBox1_MouseUp;
 
+            this.KeyPreview = true; // Permite que o formulário capture eventos de teclado antes dos controles
+            this.KeyDown += Suporte_KeyDown;
+
             timer = new Timer();
             timer.Interval = 100; // 5000 milliseconds = 5 seconds
             timer.Tick += new EventHandler(LoadImage);
@@ -148,6 +151,12 @@ namespace snapAssist
             // Formata a mensagem de ação
             string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {action}";
             UpdateLog(logMessage);
+        }
+
+        private void Suporte_KeyDown(object sender, KeyEventArgs e)
+        {
+            string keyAction = $"Tecla Pressionada: {e.KeyCode}";
+            UpdateLog(keyAction);
         }
 
         private void UpdateLog(string logMessage)

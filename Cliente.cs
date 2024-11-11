@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Collections.Generic;
 using Timer = System.Windows.Forms.Timer;
+using System.Runtime.InteropServices;
 
 namespace snapAssist
 {
@@ -13,6 +14,14 @@ namespace snapAssist
     {
         private Timer timer;
 
+        [DllImport("user32.dll")]
+        private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetForegroundWindow(IntPtr hWnd);
         public Cliente(string ip)
         {
             InitializeComponent();
@@ -28,11 +37,10 @@ namespace snapAssist
             timer.Tick += new EventHandler(Timer_Tick);
             timer.Start();
         }
-
         private void Timer_Tick(object sender, EventArgs e)
         {
             CaptureScreen();
-            ProcessMouseLog();  // Processa o arquivo de log de eventos do mouse
+            ProcessMouseAndKeyboardLog();  // Processa o arquivo de log de eventos do mouse
         }
 
         private void CaptureScreen()
@@ -100,33 +108,79 @@ namespace snapAssist
         }
 
         // Função para processar os eventos do mouse do arquivo de log
-        private void ProcessMouseLog()
+        private void ProcessMouseAndKeyboardLog()
         {
-            // Caminho do arquivo
             string filePath = @"C:\FTP\mouse_log.txt";
-
-            // Verificar se o arquivo existe
             if (!File.Exists(filePath))
             {
                 return;
             }
 
-            // Ler todas as linhas do arquivo
             List<string> lines = new List<string>(File.ReadAllLines(filePath));
 
-            // Processar as linhas uma por uma
             while (lines.Count > 0)
             {
-                string line = lines[0]; // Pega a primeira linha
-                ProcessMouseEvent(line); // Processa o evento do mouse
-                lines.RemoveAt(0); // Remove a linha processada
-
-                // Regrava o arquivo com as linhas restantes
+                string line = lines[0];
+                ProcessEvent(line); // Identifica e processa o evento de mouse ou teclado
+                lines.RemoveAt(0);
                 File.WriteAllLines(filePath, lines);
-                Thread.Sleep(200); // Atraso entre a execução de eventos
+                Thread.Sleep(200);
             }
-
         }
+
+        // Processa o evento detectado no log
+        private void ProcessEvent(string line)
+        {
+            var clickRegex = new Regex(@"Clique: {X=(\d+), Y=(\d+)}");
+            var dragRegex = new Regex(@"Arrastando: {X=(\d+), Y=(\d+)} até {X=(\d+), Y=(\d+)}");
+            var doubleClickRegex = new Regex(@"Duplo Clique: {X=(\d+), Y=(\d+)}");
+            var keyPressRegex = new Regex(@"Tecla Pressionada: (\w)");
+
+            if (clickRegex.IsMatch(line))
+            {
+                var match = clickRegex.Match(line);
+                int x = int.Parse(match.Groups[1].Value);
+                int y = int.Parse(match.Groups[2].Value);
+                MouseClick(x, y);
+            }
+            else if (dragRegex.IsMatch(line))
+            {
+                var match = dragRegex.Match(line);
+                int startX = int.Parse(match.Groups[1].Value);
+                int startY = int.Parse(match.Groups[2].Value);
+                int endX = int.Parse(match.Groups[3].Value);
+                int endY = int.Parse(match.Groups[4].Value);
+                MouseDrag(startX, startY, endX, endY);
+            }
+            else if (doubleClickRegex.IsMatch(line))
+            {
+                var match = doubleClickRegex.Match(line);
+                int x = int.Parse(match.Groups[1].Value);
+                int y = int.Parse(match.Groups[2].Value);
+                MouseDoubleClick(x, y);
+            }
+            else if (keyPressRegex.IsMatch(line))
+            {
+                var match = keyPressRegex.Match(line);
+                string key = match.Groups[1].Value;
+                SimulateKeyPress(key);
+            }
+        }
+
+        private void SimulateKeyPress(string key)
+        {
+            byte vkCode = (byte)VkKeyScan(key[0]);
+            const uint KEYEVENTF_KEYDOWN = 0x0000;
+            const uint KEYEVENTF_KEYUP = 0x0002;
+
+            keybd_event(vkCode, 0, KEYEVENTF_KEYDOWN, UIntPtr.Zero);
+            Thread.Sleep(50);
+            keybd_event(vkCode, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern short VkKeyScan(char ch);
+
 
         // Função para processar os eventos de mouse do arquivo
         private void ProcessMouseEvent(string line)
