@@ -191,6 +191,36 @@ namespace snapAssist
                 case "Backspace":
                     vkCode = (byte)Keys.Back;
                     break;
+                case "D0":
+                    vkCode = (byte)Keys.D0;
+                    break;
+                case "D1":
+                    vkCode = (byte)Keys.D1;
+                    break;
+                case "D2":
+                    vkCode = (byte)Keys.D2;
+                    break;
+                case "D3":
+                    vkCode = (byte)Keys.D3;
+                    break;
+                case "D4":
+                    vkCode = (byte)Keys.D4;
+                    break;
+                case "D5":
+                    vkCode = (byte)Keys.D5;
+                    break;
+                case "D6":
+                    vkCode = (byte)Keys.D6;
+                    break;
+                case "D7":
+                    vkCode = (byte)Keys.D7;
+                    break;
+                case "D8":
+                    vkCode = (byte)Keys.D8;
+                    break;
+                case "D9":
+                    vkCode = (byte)Keys.D9;
+                    break;
                 default:
                     char upperKey = char.ToUpper(key[0]);
                     vkCode = (byte)VkKeyScan(upperKey);
@@ -223,6 +253,7 @@ namespace snapAssist
                 keybd_event((byte)Keys.ShiftKey, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
             }
         }
+
 
 
 
