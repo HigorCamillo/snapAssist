@@ -14,6 +14,8 @@ namespace snapAssist
     {
         private Timer timer;
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern short VkKeyScan(char ch);
         [DllImport("user32.dll")]
         private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
@@ -134,7 +136,7 @@ namespace snapAssist
             var clickRegex = new Regex(@"Clique: {X=(\d+), Y=(\d+)}");
             var dragRegex = new Regex(@"Arrastando: {X=(\d+), Y=(\d+)} até {X=(\d+), Y=(\d+)}");
             var doubleClickRegex = new Regex(@"Duplo Clique: {X=(\d+), Y=(\d+)}");
-            var keyPressRegex = new Regex(@"Tecla Pressionada: (\w)");
+            var keyPressRegex = new Regex(@"Tecla Pressionada: (\w+)");
 
             if (clickRegex.IsMatch(line))
             {
@@ -167,56 +169,43 @@ namespace snapAssist
             }
         }
 
+        // Processa a tecla pressionada no log
         private void SimulateKeyPress(string key)
         {
-            byte vkCode = (byte)VkKeyScan(key[0]);
+            byte vkCode;
+
+            // Verifica se é uma tecla especial como "Space" ou outra
+            switch (key.ToUpper())
+            {
+                case "SPACE":
+                    vkCode = (byte)Keys.Space;
+                    break;
+                case "ENTER":
+                    vkCode = (byte)Keys.Enter;
+                    break;
+                case "TAB":
+                    vkCode = (byte)Keys.Tab;
+                    break;
+                case "BACKSPACE":
+                    vkCode = (byte)Keys.Back;
+                    break;
+                default:
+                    // Converte o primeiro caractere da string em vkCode se não for uma tecla especial
+                    vkCode = (byte)VkKeyScan(key[0]);
+                    break;
+            }
+
             const uint KEYEVENTF_KEYDOWN = 0x0000;
             const uint KEYEVENTF_KEYUP = 0x0002;
 
+            // Simula o pressionamento da tecla
             keybd_event(vkCode, 0, KEYEVENTF_KEYDOWN, UIntPtr.Zero);
             Thread.Sleep(50);
             keybd_event(vkCode, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
         }
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern short VkKeyScan(char ch);
-
-
-        // Função para processar os eventos de mouse do arquivo
-        private void ProcessMouseEvent(string line)
-        {
-            // Regex para identificar os comandos do mouse
-            var clickRegex = new Regex(@"Clique: {X=(\d+), Y=(\d+)}");
-            var dragRegex = new Regex(@"Arrastando: {X=(\d+), Y=(\d+)} até {X=(\d+), Y=(\d+)}");
-            var doubleClickRegex = new Regex(@"Duplo Clique: {X=(\d+), Y=(\d+)}");
-
-            if (clickRegex.IsMatch(line))
-            {
-                var match = clickRegex.Match(line);
-                int x = int.Parse(match.Groups[1].Value);
-                int y = int.Parse(match.Groups[2].Value);
-                MouseClick(x, y);
-            }
-            else if (dragRegex.IsMatch(line))
-            {
-                var match = dragRegex.Match(line);
-                int startX = int.Parse(match.Groups[1].Value);
-                int startY = int.Parse(match.Groups[2].Value);
-                int endX = int.Parse(match.Groups[3].Value);
-                int endY = int.Parse(match.Groups[4].Value);
-                MouseDrag(startX, startY, endX, endY);
-            }
-            else if (doubleClickRegex.IsMatch(line))
-            {
-                var match = doubleClickRegex.Match(line);
-                int x = int.Parse(match.Groups[1].Value);
-                int y = int.Parse(match.Groups[2].Value);
-                MouseDoubleClick(x, y);
-            }
-        }
-
         // Função para simular clique do mouse
-        private void MouseClick(int x, int y)
+    private void MouseClick(int x, int y)
         {
             // Simulando clique do mouse
             Cursor.Position = new System.Drawing.Point(x, y);
