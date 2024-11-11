@@ -152,9 +152,34 @@ namespace snapAssist
 
         private void Suporte_KeyDown(object sender, KeyEventArgs e)
         {
-            string keyAction = $"Tecla Pressionada: {e.KeyCode}";
-            UpdateLog(keyAction);
+            // Verifica se a tecla pressionada é uma letra
+            if (e.KeyCode >= Keys.A && e.KeyCode <= Keys.Z)
+            {
+                // Verifica se o Caps Lock está ativo e se a tecla Shift não está pressionada
+                bool isCapsLockActive = Control.IsKeyLocked(Keys.CapsLock);
+
+                // Se o Caps Lock estiver ativado, ou se a tecla Shift estiver pressionada, a letra será maiúscula
+                if (isCapsLockActive ^ e.Shift) // XOR lógico: CapsLock e Shift não podem estar ambos ativados ou desativados simultaneamente
+                {
+                    // Maiúscula
+                    string keyAction = $"Tecla Pressionada: {e.KeyCode.ToString()}";
+                    UpdateLog(keyAction);
+                }
+                else
+                {
+                    // Minúscula
+                    string keyAction = $"Tecla Pressionada: {e.KeyCode.ToString().ToLower()}";
+                    UpdateLog(keyAction);
+                }
+            }
+            else
+            {
+                // Para outras teclas, apenas registra a tecla normalmente
+                string keyAction = $"Tecla Pressionada: {e.KeyCode}";
+                UpdateLog(keyAction);
+            }
         }
+
 
         private void UpdateLog(string logMessage)
         {

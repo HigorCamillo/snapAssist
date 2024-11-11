@@ -163,43 +163,71 @@ namespace snapAssist
             {
                 var match = keyPressRegex.Match(line);
                 string key = match.Groups[1].Value;
+
+                if (key == "Capital" || key == "ShiftKey")
+                {
+                    return;  // Não faz nada se for Capital ou ShiftKey
+                }
                 SimulateKeyPress(key);
             }
         }
         private void SimulateKeyPress(string key)
         {
             byte vkCode;
+            bool shiftRequired = false;
 
-            switch (key.ToUpper())
+            // Trata separadamente teclas como espaço, enter, tab, backspace, etc.
+            switch (key)
             {
-                case "SPACE":
+                case "Space":
                     vkCode = (byte)Keys.Space;
                     break;
-                case "ENTER":
+                case "Enter":
                     vkCode = (byte)Keys.Enter;
                     break;
-                case "TAB":
+                case "Tab":
                     vkCode = (byte)Keys.Tab;
                     break;
-                case "BACKSPACE":
+                case "Backspace":
                     vkCode = (byte)Keys.Back;
                     break;
                 default:
-                    // Converte o primeiro caractere da string em vkCode se não for uma tecla especial
-                    vkCode = (byte)VkKeyScan(key[0]);
+                    char upperKey = char.ToUpper(key[0]);
+                    vkCode = (byte)VkKeyScan(upperKey);
+
+                    // Verifica se a tecla precisa do Shift para ser maiúscula
+                    if (char.IsUpper(key[0]))
+                    {
+                        shiftRequired = true;
+                    }
                     break;
             }
 
             const uint KEYEVENTF_KEYDOWN = 0x0000;
             const uint KEYEVENTF_KEYUP = 0x0002;
 
+            // Simula o pressionamento da tecla Shift se necessário
+            if (shiftRequired)
+            {
+                keybd_event((byte)Keys.ShiftKey, 0, KEYEVENTF_KEYDOWN, UIntPtr.Zero);
+            }
+
             // Simula o pressionamento da tecla
             keybd_event(vkCode, 0, KEYEVENTF_KEYDOWN, UIntPtr.Zero);
             Thread.Sleep(50);
             keybd_event(vkCode, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+
+            // Libera a tecla Shift se foi pressionada
+            if (shiftRequired)
+            {
+                keybd_event((byte)Keys.ShiftKey, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            }
         }
 
-    private void MouseClick(int x, int y)
+
+
+
+        private void MouseClick(int x, int y)
         {
             Cursor.Position = new System.Drawing.Point(x, y);
             MouseEvent(MouseEventFlags.LeftDown);
