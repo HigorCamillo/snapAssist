@@ -27,16 +27,15 @@ namespace snapAssist
             {
                 RemoveFtpConfiguration();
 
-                // Obter o endereço IP local
                 string localIP = GetLocalIPAddress();
-                label2.Text = localIP; // Exibir IP
+                label2.Text = localIP; 
                 string randomPassword = GenerateRandomPassword(); // Gerar senha
-                label5.Text = randomPassword; // Exibir senha
+                label5.Text = randomPassword; 
 
                 // Inicializar o Timer
                 ftpCheckTimer = new System.Timers.Timer(10000); // 10 segundos (10000 ms)
                 ftpCheckTimer.Elapsed += FtpCheckTimer_Elapsed;
-                ftpCheckTimer.Start(); // Iniciar o Timer
+                ftpCheckTimer.Start(); 
 
                 // Configuração do FTP
                 await Task.Run(() =>
@@ -218,8 +217,8 @@ namespace snapAssist
 
         private async void button2_Click(object sender, EventArgs e)
         {
-            string ftpIp = textBox1.Text;  // IP do servidor FTP
-            string ftpPassword = textBox2.Text;  // Senha fornecida pelo usuário
+            string ftpIp = textBox1.Text;  
+            string ftpPassword = textBox2.Text;
 
             try
             {
@@ -228,7 +227,6 @@ namespace snapAssist
 
                 if (isConnected)
                 {
-                    // Se a conexão for bem-sucedida, abrir o Suporte
                     Suporte cl = new Suporte(ftpIp, ftpPassword);
                     OpenForm(cl);
                 }
@@ -251,7 +249,6 @@ namespace snapAssist
                 ftpRequest.Method = WebRequestMethods.Ftp.ListDirectory;
                 ftpRequest.Credentials = new NetworkCredential("ftpUser", password);
 
-                // Defina o modo de uso passivo se necessário (dependendo da configuração do servidor)
                 ftpRequest.UsePassive = true;
 
                 using (FtpWebResponse response = (FtpWebResponse)await ftpRequest.GetResponseAsync())
@@ -282,15 +279,14 @@ namespace snapAssist
 
         private string GetFtpUserConnectedIp()
         {
-            // Exemplo: Usando o IP da conexão de rede local
             foreach (var ip in System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName()))
             {
                 if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 {
-                    return ip.ToString();  // Retorna o IP da máquina local
+                    return ip.ToString();  
                 }
             }
-            return null;  // Caso não encontre
+            return null;
         }
 
         private void FtpCheckTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -304,14 +300,12 @@ namespace snapAssist
                     // Se houver uma conexão ativa, abrir o formulário Cliente
                     this.Invoke((MethodInvoker)delegate
                     {
-                        // Minimizar o formulário atual
                         this.WindowState = FormWindowState.Minimized;
 
-                        // Verificar se o formulário Cliente já está aberto
                         if (FormOpen == null || FormOpen.IsDisposed)
                         {
                             Cliente cl = new Cliente(ftpIp);
-                            OpenForm(cl); // Abrir o formulário Cliente
+                            OpenForm(cl); 
                         }
                     });
                 }

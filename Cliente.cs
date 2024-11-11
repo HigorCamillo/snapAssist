@@ -42,7 +42,7 @@ namespace snapAssist
         private void Timer_Tick(object sender, EventArgs e)
         {
             CaptureScreen();
-            ProcessMouseAndKeyboardLog();  // Processa o arquivo de log de eventos do mouse
+            ProcessMouseAndKeyboardLog();
         }
 
         private void CaptureScreen()
@@ -79,7 +79,6 @@ namespace snapAssist
         {
             try
             {
-                // Defina o diretório FTP para salvar a captura
                 string ftpDirectory = @"C:\FTP";
 
                 if (!Directory.Exists(ftpDirectory))
@@ -101,7 +100,7 @@ namespace snapAssist
         private void DrawCursor(Graphics g, Point mousePosition)
         {
             // Desenha o cursor do mouse
-            Cursor cursor = Cursors.Default; // Você pode mudar para outro cursor, se desejar
+            Cursor cursor = Cursors.Default; 
             int cursorX = mousePosition.X - cursor.Size.Width / 2; // Centraliza o cursor
             int cursorY = mousePosition.Y - cursor.Size.Height / 2;
 
@@ -109,7 +108,6 @@ namespace snapAssist
             cursor.Draw(g, new Rectangle(cursorX, cursorY, cursor.Size.Width, cursor.Size.Height));
         }
 
-        // Função para processar os eventos do mouse do arquivo de log
         private void ProcessMouseAndKeyboardLog()
         {
             string filePath = @"C:\FTP\mouse_log.txt";
@@ -123,7 +121,7 @@ namespace snapAssist
             while (lines.Count > 0)
             {
                 string line = lines[0];
-                ProcessEvent(line); // Identifica e processa o evento de mouse ou teclado
+                ProcessEvent(line);
                 lines.RemoveAt(0);
                 File.WriteAllLines(filePath, lines);
                 Thread.Sleep(200);
@@ -168,13 +166,10 @@ namespace snapAssist
                 SimulateKeyPress(key);
             }
         }
-
-        // Processa a tecla pressionada no log
         private void SimulateKeyPress(string key)
         {
             byte vkCode;
 
-            // Verifica se é uma tecla especial como "Space" ou outra
             switch (key.ToUpper())
             {
                 case "SPACE":
@@ -204,10 +199,8 @@ namespace snapAssist
             keybd_event(vkCode, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
         }
 
-        // Função para simular clique do mouse
     private void MouseClick(int x, int y)
         {
-            // Simulando clique do mouse
             Cursor.Position = new System.Drawing.Point(x, y);
             MouseEvent(MouseEventFlags.LeftDown);
             Thread.Sleep(100); // Atraso entre os eventos
@@ -218,7 +211,6 @@ namespace snapAssist
         // Função para simular arrasto do mouse
         private void MouseDrag(int startX, int startY, int endX, int endY)
         {
-            // Simulando o arrastar do mouse
             Cursor.Position = new System.Drawing.Point(startX, startY);
             MouseEvent(MouseEventFlags.LeftDown);
             Thread.Sleep(100); // Atraso entre os eventos
@@ -243,7 +235,6 @@ namespace snapAssist
             Console.WriteLine($"Duplo clique em {x}, {y}");
         }
 
-        // Função para simular eventos do mouse com a API do Windows
         private void MouseEvent(MouseEventFlags value)
         {
             mouse_event((int)value, 0, 0, 0, 0);
