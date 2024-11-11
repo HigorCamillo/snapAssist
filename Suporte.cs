@@ -11,8 +11,8 @@ namespace snapAssist
     {
         private bool isDragging = false;
         private Point lastCursor;
-        private Point initialDragPoint; // Ponto inicial do arrasto
-        private bool mouseMoved = false; // Flag para detectar movimento do mouse
+        private Point initialDragPoint; 
+        private bool mouseMoved = false; 
 
         private Timer timer;
         private string ftpIp;
@@ -47,14 +47,13 @@ namespace snapAssist
         {
             if (isImageLoading)
             {
-                return; // Impede novas tentativas de carregar enquanto já há uma em andamento
+                return;
             }
 
             try
             {
-                isImageLoading = true;  // Marca que estamos carregando uma imagem
+                isImageLoading = true; 
 
-                // Caminho no servidor FTP
                 string ftpImagePath = $"ftp://{ftpIp}/screenshot.png";
 
                 // Baixar a imagem do servidor FTP diretamente em um Stream
@@ -64,14 +63,13 @@ namespace snapAssist
                     using (Stream stream = client.OpenRead(ftpImagePath))
                     {
                         // Limpar a imagem existente no PictureBox
-                        pictureBox1.Image?.Dispose(); // Liberar os recursos da imagem anterior
-                        pictureBox1.Image = null; // Limpar o PictureBox
+                        pictureBox1.Image?.Dispose();
+                        pictureBox1.Image = null;
 
-                        // Carregar a imagem diretamente do fluxo
                         ImageShow = Image.FromStream(stream);
-                        pictureBox1.Image = ImageShow; // Atribuir a imagem ao PictureBox
-                        pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage; // Ajustar a imagem
-                        pictureBox1.Dock = DockStyle.Fill; // Ajustar o PictureBox
+                        pictureBox1.Image = ImageShow; 
+                        pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage; 
+                        pictureBox1.Dock = DockStyle.Fill; 
                     }
                 }
             }
@@ -80,7 +78,7 @@ namespace snapAssist
             }
             finally
             {
-                isImageLoading = false; // Permite que a próxima atualização aconteça
+                isImageLoading = false;
             }
         }
 
@@ -92,7 +90,7 @@ namespace snapAssist
 
         private void PictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (!mouseMoved) // Só registra clique se o mouse não se moveu
+            if (!mouseMoved)
             {
                 if (e.Button == MouseButtons.Left)
                 {
@@ -115,8 +113,8 @@ namespace snapAssist
             if (e.Button == MouseButtons.Left)
             {
                 isDragging = true;
-                mouseMoved = false; // Reseta o flag de movimento
-                initialDragPoint = e.Location; // Armazena o ponto inicial do arrasto
+                mouseMoved = false; 
+                initialDragPoint = e.Location;
             }
         }
 
@@ -134,7 +132,7 @@ namespace snapAssist
 
         private void PictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (isDragging && mouseMoved) // Loga apenas se houve movimento
+            if (isDragging && mouseMoved)
             {
                 isDragging = false;
                 string action = $"Arrastando: {{X={initialDragPoint.X}, Y={initialDragPoint.Y}}} até {{X={lastCursor.X}, Y={lastCursor.Y}}}";
@@ -142,13 +140,12 @@ namespace snapAssist
             }
             else
             {
-                isDragging = false; // Apenas cancela o arrasto se não houve movimento
+                isDragging = false;
             }
         }
 
         private void LogMouseAction(string action)
         {
-            // Formata a mensagem de ação
             string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {action}";
             UpdateLog(logMessage);
         }
@@ -163,27 +160,21 @@ namespace snapAssist
         {
             try
             {
-                // Caminho do arquivo de log no servidor FTP
                 string ftpLogPath = $"ftp://{ftpIp}/mouse_log.txt";
 
-                // Criar uma requisição FTP para acessar o arquivo de log no servidor
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpLogPath);
                 request.Method = WebRequestMethods.Ftp.AppendFile; // Usar "AppendFile" para adicionar dados ao arquivo existente
 
-                // Definir as credenciais de login FTP
                 request.Credentials = new NetworkCredential("ftpUser", ftpPassword);
 
-                // Enviar os dados para o servidor FTP
                 using (Stream requestStream = request.GetRequestStream())
                 {
                     using (StreamWriter writer = new StreamWriter(requestStream))
                     {
-                        // Escrever a nova linha de log
                         writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {logMessage}");
                     }
                 }
 
-                // Realizar a requisição e obter a resposta do servidor FTP
                 using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
                 {
                    
@@ -191,8 +182,6 @@ namespace snapAssist
             }
             catch (Exception ex)
             {
-                // Caso haja erro durante a operação, exibe um erro
-                MessageBox.Show($"Erro ao atualizar o arquivo de log no FTP: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
