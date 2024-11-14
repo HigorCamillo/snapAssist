@@ -11,8 +11,8 @@ namespace snapAssist
     {
         private bool isDragging = false;
         private Point lastCursor;
-        private Point initialDragPoint; 
-        private bool mouseMoved = false; 
+        private Point initialDragPoint;
+        private bool mouseMoved = false;
 
         private Timer timer;
         private string ftpIp;
@@ -32,16 +32,16 @@ namespace snapAssist
             this.pictureBox1.MouseMove += PictureBox1_MouseMove;
             this.pictureBox1.MouseUp += PictureBox1_MouseUp;
 
-            this.KeyPreview = true; // Permite que o formulário capture eventos de teclado antes dos controles
+            this.KeyPreview = true; // Permite que o formulÃ¡rio capture eventos de teclado antes dos controles
             this.KeyDown += Suporte_KeyDown;
 
             timer = new Timer();
-            timer.Interval = 100; // 5000 milliseconds = 5 seconds
+            timer.Interval = 500; // 5000 milliseconds = 5 seconds
             timer.Tick += new EventHandler(LoadImage);
             timer.Start();
         }
         Image ImageShow = null;
-        private bool isImageLoading = false;  // Flag para controlar se a imagem está sendo carregada
+        private bool isImageLoading = false;  // Flag para controlar se a imagem estÃ¡ sendo carregada
 
         private void LoadImage(object sender, EventArgs e)
         {
@@ -52,34 +52,44 @@ namespace snapAssist
 
             try
             {
-                isImageLoading = true; 
+                isImageLoading = true;
 
                 string ftpImagePath = $"ftp://{ftpIp}/screenshot.png";
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpImagePath);
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+                request.Credentials = new NetworkCredential("ftpUser", ftpPassword);
 
-                // Baixar a imagem do servidor FTP diretamente em um Stream
-                using (WebClient client = new WebClient())
+                // Define o modo passivo como false para usar o modo ativo
+                request.UsePassive = false;
+
+                using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+                using (Stream stream = response.GetResponseStream())
                 {
-                    client.Credentials = new NetworkCredential("ftpUser", ftpPassword);
-                    using (Stream stream = client.OpenRead(ftpImagePath))
+                    // Copiar o stream para um MemoryStream para abrir a imagem em modo de leitura
+                    using (MemoryStream memoryStream = new MemoryStream())
                     {
-                        // Limpar a imagem existente no PictureBox
+                        stream.CopyTo(memoryStream);
+                        memoryStream.Position = 0; // Reiniciar o ponteiro para o inÃ­cio
+
                         pictureBox1.Image?.Dispose();
                         pictureBox1.Image = null;
 
-                        ImageShow = Image.FromStream(stream);
-                        pictureBox1.Image = ImageShow; 
-                        pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage; 
-                        pictureBox1.Dock = DockStyle.Fill; 
+                        ImageShow = Image.FromStream(memoryStream);
+                        pictureBox1.Image = ImageShow;
+                        pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+                        pictureBox1.Dock = DockStyle.Fill;
                     }
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Erro ao carregar a imagem: {ex.Message}");
             }
             finally
             {
                 isImageLoading = false;
             }
+
         }
 
 
@@ -92,20 +102,27 @@ namespace snapAssist
         {
             if (!mouseMoved)
             {
+                // Ajusta as coordenadas considerando o tamanho da imagem e o tamanho da PictureBox
+                int adjustedX = (int)(e.X * (float)ImageShow.Width / pictureBox1.Width);
+                int adjustedY = (int)(e.Y * (float)ImageShow.Height / pictureBox1.Height);
+
                 if (e.Button == MouseButtons.Left)
                 {
-                    LogMouseAction($"Clique: {{X={e.X}, Y={e.Y}}}");
+                    LogMouseAction($"Clique: {{X={adjustedX}, Y={adjustedY}}}");
                 }
                 else if (e.Button == MouseButtons.Right)
                 {
-                    LogMouseAction($"Clique com Botão Direito: {{X={e.X}, Y={e.Y}}}");
+                    LogMouseAction($"Clique com BotÃ£o Direito: {{X={adjustedX}, Y={adjustedY}}}");
                 }
             }
         }
 
         private void PictureBox1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            LogMouseAction($"Duplo Clique: {{X={e.X}, Y={e.Y}}}");
+            // Ajusta as coordenadas para o clique duplo
+            int adjustedX = (int)(e.X * (float)ImageShow.Width / pictureBox1.Width);
+            int adjustedY = (int)(e.Y * (float)ImageShow.Height / pictureBox1.Height);
+            LogMouseAction($"Duplo Clique: {{X={adjustedX}, Y={adjustedY}}}");
         }
 
         private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
@@ -113,7 +130,7 @@ namespace snapAssist
             if (e.Button == MouseButtons.Left)
             {
                 isDragging = true;
-                mouseMoved = false; 
+                mouseMoved = false;
                 initialDragPoint = e.Location;
             }
         }
@@ -125,7 +142,7 @@ namespace snapAssist
                 if (e.Location != initialDragPoint) // Verifica se o mouse realmente se moveu
                 {
                     mouseMoved = true;
-                    lastCursor = e.Location; // Atualiza a posição do cursor durante o arrasto
+                    lastCursor = e.Location; // Atualiza a posiÃ§Ã£o do cursor durante o arrasto
                 }
             }
         }
@@ -135,7 +152,14 @@ namespace snapAssist
             if (isDragging && mouseMoved)
             {
                 isDragging = false;
-                string action = $"Arrastando: {{X={initialDragPoint.X}, Y={initialDragPoint.Y}}} até {{X={lastCursor.X}, Y={lastCursor.Y}}}";
+
+                // Ajusta as coordenadas do inÃ­cio e do final do arrasto
+                int adjustedStartX = (int)(initialDragPoint.X * (float)ImageShow.Width / pictureBox1.Width);
+                int adjustedStartY = (int)(initialDragPoint.Y * (float)ImageShow.Height / pictureBox1.Height);
+                int adjustedEndX = (int)(lastCursor.X * (float)ImageShow.Width / pictureBox1.Width);
+                int adjustedEndY = (int)(lastCursor.Y * (float)ImageShow.Height / pictureBox1.Height);
+
+                string action = $"Arrastando: {{X={adjustedStartX}, Y={adjustedStartY}}} atÃ© {{X={adjustedEndX}, Y={adjustedEndY}}}";
                 LogMouseAction(action);
             }
             else
@@ -143,6 +167,8 @@ namespace snapAssist
                 isDragging = false;
             }
         }
+
+
 
         private void LogMouseAction(string action)
         {
@@ -152,22 +178,22 @@ namespace snapAssist
 
         private void Suporte_KeyDown(object sender, KeyEventArgs e)
         {
-            // Verifica se a tecla pressionada é uma letra
+            // Verifica se a tecla pressionada Ã© uma letra
             if (e.KeyCode >= Keys.A && e.KeyCode <= Keys.Z)
             {
-                // Verifica se o Caps Lock está ativo e se a tecla Shift não está pressionada
+                // Verifica se o Caps Lock estÃ¡ ativo e se a tecla Shift nÃ£o estÃ¡ pressionada
                 bool isCapsLockActive = Control.IsKeyLocked(Keys.CapsLock);
 
-                // Se o Caps Lock estiver ativado, ou se a tecla Shift estiver pressionada, a letra será maiúscula
-                if (isCapsLockActive ^ e.Shift) // XOR lógico: CapsLock e Shift não podem estar ambos ativados ou desativados simultaneamente
+                // Se o Caps Lock estiver ativado, ou se a tecla Shift estiver pressionada, a letra serÃ¡ maiÃºscula
+                if (isCapsLockActive ^ e.Shift) // XOR lÃ³gico: CapsLock e Shift nÃ£o podem estar ambos ativados ou desativados simultaneamente
                 {
-                    // Maiúscula
+                    // MaiÃºscula
                     string keyAction = $"Tecla Pressionada: {e.KeyCode.ToString()}";
                     UpdateLog(keyAction);
                 }
                 else
                 {
-                    // Minúscula
+                    // MinÃºscula
                     string keyAction = $"Tecla Pressionada: {e.KeyCode.ToString().ToLower()}";
                     UpdateLog(keyAction);
                 }
@@ -189,7 +215,7 @@ namespace snapAssist
 
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpLogPath);
                 request.Method = WebRequestMethods.Ftp.AppendFile; // Usar "AppendFile" para adicionar dados ao arquivo existente
-
+                request.UsePassive = false;
                 request.Credentials = new NetworkCredential("ftpUser", ftpPassword);
 
                 using (Stream requestStream = request.GetRequestStream())
@@ -202,7 +228,7 @@ namespace snapAssist
 
                 using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
                 {
-                   
+
                 }
             }
             catch (Exception ex)
